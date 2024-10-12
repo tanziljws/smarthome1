@@ -75,34 +75,34 @@
   </div>
 
   <script>
+    const ESP32_IP = 'http://192.168.0.196';  // Ganti dengan IP ESP32 Anda
+
     // Fungsi untuk menyalakan dan mematikan relay
     function toggleRelay(relay, action) {
-      const url = `https://af48-103-255-156-40.ngrok-free.app/relay${relay}_${action}`;
-      fetch(url, {
-        method: 'GET',
-        mode: 'cors',  // Mengaktifkan cross-origin
-        credentials: 'include',  // Mengirim cookie atau otorisasi yang dibutuhkan
+      const url = `${ESP32_IP}/relay${relay}_${action}`;
+      fetch(url)
+      .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.text();
       })
-      .then(response => response.text())
       .then(data => alert(`Relay ${relay} ${action.toUpperCase()}: ${data}`))
-      .catch(error => alert('Error mengirim perintah: ' + error));
+      .catch(error => alert('Error mengirim perintah: ' + error.message));
     }
 
     // Fungsi untuk mengambil data sensor suhu dan kelembaban
     function getSensorData() {
-      fetch('https://af48-103-255-156-40.ngrok-free.app/get_temp_humidity', {
-        method: 'GET',
-        mode: 'cors',  // Mengaktifkan cross-origin
-        credentials: 'include',  // Mengirim cookie atau otorisasi yang dibutuhkan
+      fetch(`${ESP32_IP}/get_temp_humidity`)
+      .then(response => {
+        if (!response.ok) throw new Error('Network response was not ok');
+        return response.json();
       })
-      .then(response => response.json())
       .then(data => {
         const sensorStatus = document.getElementById('sensor-status');
         sensorStatus.innerHTML = `Suhu: ${data.temperature}°C, Kelembaban: ${data.humidity}%`;
       })
       .catch(error => {
         const sensorStatus = document.getElementById('sensor-status');
-        sensorStatus.innerHTML = 'Gagal mendapatkan data sensor!';
+        sensorStatus.innerHTML = 'Gagal mendapatkan data sensor: ' + error.message;
       });
     }
 
