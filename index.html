@@ -27,7 +27,7 @@
       margin-bottom: 10px;
     }
     .button {
-      background-color: #4CAF50;
+      background-color: #4CAF50; /* Warna tombol ON */
       border: none;
       color: white;
       padding: 10px 20px;
@@ -40,12 +40,12 @@
       cursor: pointer;
     }
     .button-off {
-      background-color: #f44336;
+      background-color: #f44336; /* Warna tombol OFF */
     }
     .status {
       margin-top: 20px;
       padding: 10px;
-      background-color: #e3f2fd;
+      background-color: #e3f2fd; /* Warna background status */
       border-radius: 5px;
     }
   </style>
@@ -75,12 +75,17 @@
   </div>
 
   <script>
-    const ESP32_IP = 'http://192.168.0.196';  // Ganti dengan IP ESP32 Anda
+    const ESP32_IP = 'https://16b5-103-255-156-40.ngrok-free.app';  // Ganti dengan URL ngrok
 
     // Fungsi untuk menyalakan dan mematikan relay
     function toggleRelay(relay, action) {
       const url = `${ESP32_IP}/relay${relay}_${action}`;
-      fetch(url)
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'ngrok-skip-browser-warning': '1' // Tambahkan header ini
+        }
+      })
       .then(response => {
         if (!response.ok) throw new Error('Network response was not ok');
         return response.text();
@@ -91,7 +96,12 @@
 
     // Fungsi untuk mengambil data sensor suhu dan kelembaban
     function getSensorData() {
-      fetch(`${ESP32_IP}/get_temp_humidity`)
+      fetch(`${ESP32_IP}/get_temp_humidity`, {
+        method: 'GET',
+        headers: {
+          'ngrok-skip-browser-warning': '1' // Tambahkan header ini
+        }
+      })
       .then(response => {
         if (!response.ok) throw new Error('Network response was not ok');
         return response.json();
