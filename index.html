@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Home Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+    }
+    .relay-control {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .button-off {
+      background-color: #f44336;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #e3f2fd;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Smart Home Dashboard</h1>
+
+  <div class="container">
+    <h3>Relay Control</h3>
+
+    <div class="relay-control">
+      <span>Relay 1:</span>
+      <button class="button" onclick="toggleRelay(1, 'on')">ON</button>
+      <button class="button button-off" onclick="toggleRelay(1, 'off')">OFF</button>
+    </div>
+
+    <div class="relay-control">
+      <span>Relay 2:</span>
+      <button class="button" onclick="toggleRelay(2, 'on')">ON</button>
+      <button class="button button-off" onclick="toggleRelay(2, 'off')">OFF</button>
+    </div>
+
+    <h3>Suhu dan Kelembaban</h3>
+    <div id="sensor-status" class="status">
+      Mengambil data...
+    </div>
+  </div>
+
+  <script>
+    // Fungsi untuk menyalakan dan mematikan relay
+    function toggleRelay(relay, action) {
+      const url = `https://af48-103-255-156-40.ngrok-free.app/relay${relay}_${action}`;
+      fetch(url, {
+        method: 'GET',
+        mode: 'cors',  // Mengaktifkan cross-origin
+        credentials: 'include',  // Mengirim cookie atau otorisasi yang dibutuhkan
+      })
+      .then(response => response.text())
+      .then(data => alert(`Relay ${relay} ${action.toUpperCase()}: ${data}`))
+      .catch(error => alert('Error mengirim perintah: ' + error));
+    }
+
+    // Fungsi untuk mengambil data sensor suhu dan kelembaban
+    function getSensorData() {
+      fetch('https://af48-103-255-156-40.ngrok-free.app/get_temp_humidity', {
+        method: 'GET',
+        mode: 'cors',  // Mengaktifkan cross-origin
+        credentials: 'include',  // Mengirim cookie atau otorisasi yang dibutuhkan
+      })
+      .then(response => response.json())
+      .then(data => {
+        const sensorStatus = document.getElementById('sensor-status');
+        sensorStatus.innerHTML = `Suhu: ${data.temperature}°C, Kelembaban: ${data.humidity}%`;
+      })
+      .catch(error => {
+        const sensorStatus = document.getElementById('sensor-status');
+        sensorStatus.innerHTML = 'Gagal mendapatkan data sensor!';
+      });
+    }
+
+    // Panggil fungsi untuk mendapatkan data sensor setelah halaman dimuat
+    window.onload = function() {
+      getSensorData();
+      setInterval(getSensorData, 5000);  // Refresh data setiap 5 detik
+    };
+  </script>
+</body>
+</html>
